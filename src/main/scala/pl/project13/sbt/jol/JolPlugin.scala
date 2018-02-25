@@ -36,9 +36,7 @@ object JolPlugin extends sbt.AutoPlugin {
     // TODO: stringCompress in jol <<= runJolTask("string-compress", fullClasspath in Compile).dependsOn(compile in Compile),
 
     discoveredClasses in jol := Seq.empty,
-    // TODO tab auto-completion break if use `:=` and `.value`
-    // https://github.com/sbt/sbt/issues/1444
-    discoveredClasses in jol <<= (compile in Compile) map discoverAllClasses storeAs (discoveredClasses in jol) triggeredBy (compile in Compile)
+    discoveredClasses in jol := ((compile in Compile) map discoverAllClasses storeAs (discoveredClasses in jol) triggeredBy (compile in Compile)).value
   )  
 
   def runJolTask(classpath: Initialize[Task[Classpath]]): Initialize[InputTask[Unit]] = {

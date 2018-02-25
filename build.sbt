@@ -1,11 +1,12 @@
 import bintray.Keys._
 
+crossSbtVersions := Seq("0.13.17", "1.1.1")
+
 sbtPlugin := true
 
 organization := "pl.project13.sbt"
 name := "sbt-jol"
 
-scalaVersion := "2.10.6"
 scalacOptions ++= List(
   "-unchecked",
   "-deprecation",
