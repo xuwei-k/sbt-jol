@@ -1,10 +1,10 @@
 # sbt-jol
 
-Trivial way to inspect OpenJDK's [*Java Object Layout*](http://openjdk.java.net/projects/code-tools/jol/) of your Scala classes.
+Trivial way to inspect OpenJDK's [*Java Object Layout*](https://openjdk.org/projects/code-tools/jol/) of your Scala classes.
 
 Get the latest via:
 
- ```
+ ```scala
  // project/plugins.sbt
  addSbtPlugin("pl.project13.sbt" % "sbt-jol" % pluginVersionHere)
  ```
@@ -12,7 +12,7 @@ Get the latest via:
  Which allows you to (note auto-completion works nicely):
  
  ```
- > jol:internals example.Entry
+ > Jol/internals example.Entry
  
 [info] # Running 64-bit HotSpot VM.
 [info] # Using compressed oop with 3-bit shift.
@@ -36,14 +36,13 @@ Get the latest via:
 [info] Space losses: 0 bytes internal + 4 bytes external = 4 bytes total
  ```
  
-  Currently uses jol `0.5`.
 
 Contribute!
 -----------
 Please note that this plugin is mostly developed on a "on demand" basis by and for myself, contributions are very (!) welcome 
 since I most likely will not focus much on it unless I need more features (and for now estimates and internal are all I needed).
  
- License
- -------
+License
+-------
  
- Apache v2
+Apache v2
