@@ -1,5 +1,5 @@
-import sbt._
-import Keys._
+import sbt.*
+import Keys.*
 
 object Version {
   val jol = "0.5"
@@ -7,8 +7,7 @@ object Version {
 }
 
 object Dependencies {
-  val jol            = "org.openjdk.jol" % "jol-core" % Version.jol
-  val jolCli         = "org.openjdk.jol" % "jol-cli"  % Version.jol
+  val jol = "org.openjdk.jol" % "jol-core" % Version.jol
+  val jolCli = "org.openjdk.jol" % "jol-cli" % Version.jol
   val scriptedPlugin = "org.scala-sbt" %% "scripted-plugin" % Version.scriptedPlugin
 }
-

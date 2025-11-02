@@ -1,8 +1,10 @@
-import sbt.Keys.{libraryDependencies, licenses, name}
+import sbt.Keys.libraryDependencies
+import sbt.Keys.licenses
+import sbt.Keys.name
 
 val myScriptedSettings = Seq(
   scriptedLaunchOpts += s"-Dproject.version=${version.value}"
-  )
+)
 
 val defaultSettings = Seq(
   organization := "pl.project13.sbt",
@@ -10,20 +12,19 @@ val defaultSettings = Seq(
     "-unchecked",
     "-deprecation",
     "-language:_",
-    "-encoding", "UTF-8"
-    ),
-
+    "-encoding",
+    "UTF-8"
+  ),
   publishConfiguration := {
     val javaVersion = System.getProperty("java.specification.version")
     if (javaVersion != "1.8")
       throw new RuntimeException("Cancelling publish, please use JDK 1.8")
     publishConfiguration.value
   },
-
   libraryDependencies += Dependencies.jol,
   libraryDependencies += Dependencies.jolCli,
   libraryDependencies += Dependencies.scriptedPlugin
-  )
+)
 
 lazy val root = (project in file("."))
   .settings(defaultSettings: _*)
@@ -37,8 +38,9 @@ lazy val root = (project in file("."))
       "-deprecation",
       "-language:_",
       "-target:jvm-1.8",
-      "-encoding", "UTF-8"
-      ),
+      "-encoding",
+      "UTF-8"
+    ),
     publishMavenStyle := false,
     licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
-   )
+  )

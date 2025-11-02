@@ -2,29 +2,30 @@ package pl.project13.sbt.jol
 
 import org.openjdk.jol.vm.VM
 import sbt.Def.Initialize
-import sbt.Keys._
-import sbt.{Def, Task, _}
-import sbt.complete.{DefaultParsers, Parser}
+import sbt.Keys.*
+import sbt.*
+import sbt.complete.DefaultParsers
+import sbt.complete.Parser
 import sbt.internal.librarymanagement.IvySbt
-import sbt.librarymanagement.{UnresolvedWarning, UnresolvedWarningConfiguration, UpdateConfiguration}
+import sbt.librarymanagement.UnresolvedWarning
+import sbt.librarymanagement.UnresolvedWarningConfiguration
+import sbt.librarymanagement.UpdateConfiguration
 import sbt.librarymanagement.ivy.IvyDependencyResolution
 import xsbt.api.Discovery
 import xsbti.compile.CompileAnalysis
-import sbt.CacheImplicits._
+import sbt.CacheImplicits.*
 
 object JolPlugin extends sbt.AutoPlugin {
 
-  import autoImport._
+  import autoImport.*
 
   override def requires = sbt.plugins.JvmPlugin
 
   override def trigger = allRequirements
 
-  override def projectSettings: Seq[Def.Setting[_]] = Seq(
+  override def projectSettings: Seq[Def.Setting[?]] = Seq(
     Jol / run := runJolTask(Compile / fullClasspath).dependsOn(Compile / compile).evaluated,
-
     Jol / version := "0.5",
-
     Jol / vmDetails := runVmDetailsTask().evaluated,
     Jol / estimates := runJolTask("estimates", Compile / fullClasspath).dependsOn(Compile / compile).evaluated,
     Jol / externals := runJolTask("externals", Compile / fullClasspath).dependsOn(Compile / compile).evaluated,
@@ -37,12 +38,13 @@ object JolPlugin extends sbt.AutoPlugin {
     Jol / discoveredClasses := Seq.empty,
     // TODO tab auto-completion break if use `:=` and `.value`
     // https://github.com/sbt/sbt/issues/1444
-    //`<<=` operator is removed. Use `key
+    // `<<=` operator is removed. Use `key
     Jol / discoveredClasses := (Compile / compile)
-        .map(discoverAllClasses)
-        .storeAs(Jol / discoveredClasses)
-        .triggeredBy(Compile / compile).value
-    )
+      .map(discoverAllClasses)
+      .storeAs(Jol / discoveredClasses)
+      .triggeredBy(Compile / compile)
+      .value
+  )
 
   def runJolTask(classpath: Initialize[Task[Classpath]]): Initialize[InputTask[Unit]] = {
     val parser = loadForParser(Jol / discoveredClasses)((s, names) => runJolModesParser(s, modes, names getOrElse Nil))
@@ -70,13 +72,17 @@ object JolPlugin extends sbt.AutoPlugin {
 
     val jolCoreJar = getArtifact("org.openjdk.jol" % "jol-core" % jolVersion, ivySbt, log)
     val jolCliJar = getArtifact("org.openjdk.jol" % "jol-cli" % jolVersion, ivySbt, log)
-    val joptJar = getArtifact("net.sf.jopt-simple" % "jopt-simple" % "4.6", ivySbt, log) // TODO could be more nicely exposed as options
+    val joptJar = getArtifact(
+      "net.sf.jopt-simple" % "jopt-simple" % "4.6",
+      ivySbt,
+      log
+    ) // TODO could be more nicely exposed as options
     val jolDeps = jolCliJar :: jolCoreJar :: joptJar :: Nil
 
     val allArg = s"${args.mkString(" ")} ${cpOption(cpFiles.toList)}"
     log.debug(s"jol: $allArg")
 
-    import scala.sys.process._
+    import scala.sys.process.*
     val javaClasspath = jolDeps.mkString(":") + ":" + cpFiles.toList.mkString(":")
     val output = s"java -cp $javaClasspath org.openjdk.jol.Main $allArg".!!(new ProcessLogger {
       override def buffer[T](f: => T): T = f
@@ -93,24 +99,20 @@ object JolPlugin extends sbt.AutoPlugin {
    * Resolves an artifact representing the previous abstract binary interface for testing.
    */
   def getArtifact(m: ModuleID, ivy: IvySbt, log: Logger): File = {
-    val moduleSettings = InlineConfiguration(
-      "dummy" % "test" % "version",
-      ModuleInfo("dummy-test-project-for-resolving"))
-      .withDependencies(Vector(m))
+    val moduleSettings =
+      InlineConfiguration("dummy" % "test" % "version", ModuleInfo("dummy-test-project-for-resolving"))
+        .withDependencies(Vector(m))
     val module = new ivy.Module(moduleSettings)
     val ivyConfig = InlineIvyConfiguration().withLog(log)
     val mayBeReport: Either[UnresolvedWarning, UpdateReport] = IvyDependencyResolution(ivyConfig).update(
       module,
-      UpdateConfiguration()
-        .withRetrieveManaged(None)
-        .withMissingOk(false)
-        .withLogging(UpdateLogging.DownloadOnly),
+      UpdateConfiguration().withRetrieveManaged(None).withMissingOk(false).withLogging(UpdateLogging.DownloadOnly),
       UnresolvedWarningConfiguration(),
       log
-      )
+    )
 
-    val optFile = mayBeReport match{
-      case Right(report) =>{
+    val optFile = mayBeReport match {
+      case Right(report) => {
         (for {
           config <- report.configurations
           module <- config.modules
@@ -137,13 +139,15 @@ object JolPlugin extends sbt.AutoPlugin {
     Discovery.applications(Tests.allDefs(analysis)).collect({ case (definition, discovered) => definition.name })
 
   private def runJolParser: (State, Seq[String]) => Parser[(String, Seq[String])] = {
-    import DefaultParsers._
+    import DefaultParsers.*
     (state, mainClasses) => Space ~> token(NotSpace examples mainClasses.toSet) ~ spaceDelimited("<arg>")
   }
   private def runJolModesParser: (State, Seq[String], Seq[String]) => Parser[(String, String, Seq[String])] = {
-    import DefaultParsers._
+    import DefaultParsers.*
     (state, modes, mainClasses) =>
-      val parser = Space ~> (token(NotSpace examples modes.toSet) ~ (Space ~> token(NotSpace examples mainClasses.toSet))) ~ spaceDelimited("<arg>")
+      val parser = Space ~> (token(NotSpace examples modes.toSet) ~ (Space ~> token(
+        NotSpace examples mainClasses.toSet
+      ))) ~ spaceDelimited("<arg>")
       parser map { o => (o._1._1, o._1._2, o._2) }
   }
 
@@ -158,9 +162,9 @@ object JolPlugin extends sbt.AutoPlugin {
   )
 
   object autoImport {
-    //!! Annoying compiler error configuration id must be capitalized
+    // !! Annoying compiler error configuration id must be capitalized
     final val Jol = sbt.config("jol") extend sbt.Configurations.CompileInternal
-    
+
     lazy val vmDetails = inputKey[Unit]("Show vm details")
 
     lazy val estimates = inputKey[Unit]("Simulate the class layout in different VM modes.")
@@ -170,7 +174,7 @@ object JolPlugin extends sbt.AutoPlugin {
     lazy val idealpack = inputKey[Unit]("Compute the object footprint under different field layout strategies.")
     lazy val internals = inputKey[Unit]("Show the object internals: field layout and default contents, object header")
     // TODO: lazy val stringCompress = inputKey[Unit]("Consume the heap dumps and figures out the savings attainable with compressed strings.")
-    
+
     lazy val discoveredClasses = TaskKey[Seq[String]]("discovered-classes", "Auto-detects classes.")
   }
 
