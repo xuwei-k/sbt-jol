@@ -6,7 +6,7 @@ Get the latest via:
 
  ```scala
  // project/plugins.sbt
- addSbtPlugin("pl.project13.sbt" % "sbt-jol" % pluginVersionHere)
+ addSbtPlugin("com.github.xuwei-k" % "sbt-jol" % pluginVersionHere)
  ```
  
  Which allows you to (note auto-completion works nicely):

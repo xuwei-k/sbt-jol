@@ -5,7 +5,7 @@ val myScriptedSettings = Seq(
   )
 
 val defaultSettings = Seq(
-  organization := "pl.project13.sbt",
+  organization := "com.github.xuwei-k",
   scalacOptions ++= List(
     "-unchecked",
     "-deprecation",
