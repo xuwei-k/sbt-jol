@@ -1,1 +1,1 @@
-addSbtPlugin("pl.project13.sbt" % "sbt-jol" % sys.props("project.version"))
+addSbtPlugin("com.github.xuwei-k" % "sbt-jol" % sys.props("project.version"))
