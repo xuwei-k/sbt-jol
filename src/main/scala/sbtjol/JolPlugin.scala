@@ -50,7 +50,8 @@ object JolPlugin extends sbt.AutoPlugin {
         streams.value.log,
         (Jol / version).value,
         JolPluginCompat.classpathToFiles(classpath.value),
-        mode :: className :: args.toList
+        mode :: className :: args.toList,
+        (Jol / forkOptions).value
       )
     }
   }
@@ -62,12 +63,13 @@ object JolPlugin extends sbt.AutoPlugin {
         streams.value.log,
         (Jol / version).value,
         JolPluginCompat.classpathToFiles(classpath.value),
-        mode :: className :: args.toList
+        mode :: className :: args.toList,
+        (Jol / forkOptions).value
       )
     }
   }
 
-  def runJol(log: Logger, jolVersion: String, classpath: Seq[File], args: Seq[String]): Unit = {
+  def runJol(log: Logger, jolVersion: String, classpath: Seq[File], args: Seq[String], forkOps: ForkOptions): Unit = {
 
     // TODO not needed, but at least confirms HERE we're able to see the class, sadly if we call JOL classes they won't...
     //      val si = (scalaInstance in console).value
@@ -77,17 +79,25 @@ object JolPlugin extends sbt.AutoPlugin {
 
     val jolDeps = getArtifact("org.openjdk.jol", "jol-cli", jolVersion)
 
-    val allArg = s"${args.mkString(" ")} ${cpOption(classpath)}"
-    log.debug(s"jol: $allArg")
+    val allArg = args ++ cpOption(classpath)
+    log.debug(s"jol: ${allArg.mkString(" ")}")
 
-    import scala.sys.process.*
-    val javaClasspath = jolDeps.mkString(":") + ":" + classpath.mkString(":")
-    val output = s"java -cp $javaClasspath org.openjdk.jol.Main $allArg".!!(new ProcessLogger {
-      override def buffer[T](f: => T): T = f
-      override def out(s: => String): Unit = log.info(s)
-      override def err(s: => String): Unit = log.error(s)
-    })
-    log.info(output)
+    val javaClasspath = (jolDeps ++ classpath).mkString(":")
+    val result = Fork.java.apply(
+      forkOps.withOutputStrategy(
+        forkOps.outputStrategy.getOrElse(
+          OutputStrategy.LoggedOutput(log)
+        )
+      ),
+      Seq(
+        "-cp",
+        javaClasspath,
+        "org.openjdk.jol.Main",
+      ) ++ allArg,
+    )
+    if (result != 0) {
+      sys.error(s"jol return ${result}")
+    }
     // TODO if anyone can figure out how to make jol not fail with ClassNotFound here that'd be grand (its tricky as it really wants to use the system loader...)
     //      org.openjdk.jol.Main.main("estimates", className, cpOption(cpFiles))
   }
@@ -107,8 +117,8 @@ object JolPlugin extends sbt.AutoPlugin {
     coursier.Fetch().addDependencies(dependency).runResult().files
   }
 
-  private def cpOption(cpFiles: Seq[File]): String =
-    "-cp " + cpFiles.mkString(":")
+  private def cpOption(cpFiles: Seq[File]): Seq[String] =
+    Seq("-cp", cpFiles.mkString(":"))
 
   def runVmDetailsTask(): Initialize[InputTask[Unit]] = {
     Def.inputTask {
