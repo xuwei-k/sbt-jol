@@ -2,10 +2,13 @@ import ReleaseTransformations.*
 
 val jol = "org.openjdk.jol" % "jol-core" % "0.17"
 
-lazy val root = (project in file("."))
+lazy val `sbt-jol-plugin` = (projectMatrix in file("sbt-jol"))
   .enablePlugins(SbtPlugin)
+  .defaultAxes(VirtualAxis.jvm)
+  .jvmPlatform(
+    scalaVersions = Seq("2.12.20", "3.7.3")
+  )
   .settings(
-    crossScalaVersions += "3.7.3",
     pluginCrossBuild / sbtVersion := {
       scalaBinaryVersion.value match {
         case "2.12" =>

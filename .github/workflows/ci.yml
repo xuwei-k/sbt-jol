@@ -18,4 +18,4 @@ jobs:
         java-version: ${{matrix.java}}
         distribution: temurin
     - uses: sbt/setup-sbt@v1
-    - run: sbt scalafmtSbtCheck "+ scalafmtCheckAll" "+ test" "+ scripted"
+    - run: sbt scalafmtSbtCheck scalafmtCheckAll test scripted
