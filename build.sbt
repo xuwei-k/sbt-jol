@@ -5,6 +5,15 @@ val jol = "org.openjdk.jol" % "jol-core" % "0.17"
 lazy val root = (project in file("."))
   .enablePlugins(SbtPlugin)
   .settings(
+    crossScalaVersions += "3.7.3",
+    pluginCrossBuild / sbtVersion := {
+      scalaBinaryVersion.value match {
+        case "2.12" =>
+          sbtVersion.value
+        case _ =>
+          "2.0.0-RC6"
+      }
+    },
     scriptedLaunchOpts += s"-Dproject.version=${version.value}",
     scriptedBufferLog := false,
     organization := "com.github.xuwei-k",
@@ -36,6 +45,7 @@ lazy val root = (project in file("."))
       "-encoding",
       "UTF-8"
     ),
+    releaseCrossBuild := true,
     releaseProcess := Seq[ReleaseStep](
       checkSnapshotDependencies,
       inquireVersions,
