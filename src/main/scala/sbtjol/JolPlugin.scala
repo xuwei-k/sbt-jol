@@ -6,14 +6,10 @@ import sbt.Keys.*
 import sbt.*
 import sbt.complete.DefaultParsers
 import sbt.complete.Parser
-import sbt.internal.librarymanagement.IvySbt
-import sbt.librarymanagement.UnresolvedWarning
-import sbt.librarymanagement.UnresolvedWarningConfiguration
-import sbt.librarymanagement.UpdateConfiguration
-import sbt.librarymanagement.ivy.IvyDependencyResolution
 import xsbt.api.Discovery
 import xsbti.compile.CompileAnalysis
 import sbt.CacheImplicits.*
+import lmcoursier.internal.shaded.coursier
 
 object JolPlugin extends sbt.AutoPlugin {
 
@@ -50,18 +46,18 @@ object JolPlugin extends sbt.AutoPlugin {
     val parser = loadForParser(Jol / discoveredClasses)((s, names) => runJolModesParser(s, modes, names getOrElse Nil))
     Def.inputTask {
       val (mode, className, args) = parser.parsed
-      runJol(streams.value.log, ivySbt.value, (Jol / version).value, classpath.value, mode :: className :: args.toList)
+      runJol(streams.value.log, (Jol / version).value, classpath.value, mode :: className :: args.toList)
     }
   }
   def runJolTask(mode: String, classpath: Initialize[Task[Classpath]]): Initialize[InputTask[Unit]] = {
     val parser = loadForParser(Jol / discoveredClasses)((s, names) => runJolParser(s, names getOrElse Nil))
     Def.inputTask {
       val (className, args) = parser.parsed
-      runJol(streams.value.log, ivySbt.value, (Jol / version).value, classpath.value, mode :: className :: args.toList)
+      runJol(streams.value.log, (Jol / version).value, classpath.value, mode :: className :: args.toList)
     }
   }
 
-  def runJol(log: Logger, ivySbt: IvySbt, jolVersion: String, classpath: Classpath, args: Seq[String]): Unit = {
+  def runJol(log: Logger, jolVersion: String, classpath: Classpath, args: Seq[String]): Unit = {
     val cpFiles = classpath.map(_.data)
 
     // TODO not needed, but at least confirms HERE we're able to see the class, sadly if we call JOL classes they won't...
@@ -70,14 +66,7 @@ object JolPlugin extends sbt.AutoPlugin {
     //      val clazz = loader.loadClass(className) // make sure we can load it
     //      Thread.currentThread().setContextClassLoader(loader)
 
-    val jolCoreJar = getArtifact("org.openjdk.jol" % "jol-core" % jolVersion, ivySbt, log)
-    val jolCliJar = getArtifact("org.openjdk.jol" % "jol-cli" % jolVersion, ivySbt, log)
-    val joptJar = getArtifact(
-      "net.sf.jopt-simple" % "jopt-simple" % "4.6",
-      ivySbt,
-      log
-    ) // TODO could be more nicely exposed as options
-    val jolDeps = jolCliJar :: jolCoreJar :: joptJar :: Nil
+    val jolDeps = getArtifact("org.openjdk.jol", "jol-cli", jolVersion)
 
     val allArg = s"${args.mkString(" ")} ${cpOption(cpFiles.toList)}"
     log.debug(s"jol: $allArg")
@@ -94,36 +83,19 @@ object JolPlugin extends sbt.AutoPlugin {
     //      org.openjdk.jol.Main.main("estimates", className, cpOption(cpFiles))
   }
 
-  /**
-   * From typesafehub/migration-manager (apache v2 licensed).
-   * Resolves an artifact representing the previous abstract binary interface for testing.
-   */
-  def getArtifact(m: ModuleID, ivy: IvySbt, log: Logger): File = {
-    val moduleSettings =
-      InlineConfiguration("dummy" % "test" % "version", ModuleInfo("dummy-test-project-for-resolving"))
-        .withDependencies(Vector(m))
-    val module = new ivy.Module(moduleSettings)
-    val ivyConfig = InlineIvyConfiguration().withLog(log)
-    val mayBeReport: Either[UnresolvedWarning, UpdateReport] = IvyDependencyResolution(ivyConfig).update(
-      module,
-      UpdateConfiguration().withRetrieveManaged(None).withMissingOk(false).withLogging(UpdateLogging.DownloadOnly),
-      UnresolvedWarningConfiguration(),
-      log
+  private def getArtifact(groupId: String, artifactId: String, revision: String): Seq[File] = {
+    val dependency = coursier.Dependency(
+      coursier.Module(
+        coursier.Organization(
+          groupId
+        ),
+        coursier.ModuleName(
+          artifactId
+        ),
+      ),
+      revision
     )
-
-    val optFile = mayBeReport match {
-      case Right(report) => {
-        (for {
-          config <- report.configurations
-          module <- config.modules
-          (artifact, file) <- module.artifacts
-          if artifact.name == m.name
-        } yield file).headOption
-      }
-      case Left(warnings) => sys.error(s"Could not resolve JOL artifact: ${warnings}")
-    }
-
-    optFile.getOrElse(sys.error(s"Could not resolve JOL artifact"))
+    coursier.Fetch().addDependencies(dependency).runResult().files
   }
 
   private def cpOption(cpFiles: Seq[File]): String =
