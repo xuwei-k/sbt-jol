@@ -1,5 +1,8 @@
 # sbt-jol
 
+[![Maven Central Version](https://img.shields.io/maven-central/v/com.github.xuwei-k/sbt-jol_2.12_1.0)](https://central.sonatype.com/artifact/com.github.xuwei-k/sbt-jol_2.12_1.0/overview)
+
+
 Trivial way to inspect OpenJDK's [*Java Object Layout*](https://openjdk.org/projects/code-tools/jol/) of your Scala classes.
 
 Get the latest via:
