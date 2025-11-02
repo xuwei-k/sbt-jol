@@ -131,13 +131,13 @@ object JolPlugin extends sbt.AutoPlugin {
 
   private def runJolParser: (State, Seq[String]) => Parser[(String, Seq[String])] = {
     import DefaultParsers.*
-    (state, mainClasses) => Space ~> token(NotSpace examples mainClasses.toSet) ~ spaceDelimited("<arg>")
+    (state, mainClasses) => Space ~> token(NotSpace.examples(mainClasses.toSet)) ~ spaceDelimited("<arg>")
   }
   private def runJolModesParser: (State, Seq[String], Seq[String]) => Parser[(String, String, Seq[String])] = {
     import DefaultParsers.*
     (state, modes, mainClasses) =>
-      val parser = Space ~> (token(NotSpace examples modes.toSet) ~ (Space ~> token(
-        NotSpace examples mainClasses.toSet
+      val parser = Space ~> (token(NotSpace.examples(modes.toSet)) ~ (Space ~> token(
+        NotSpace.examples(mainClasses.toSet)
       ))) ~ spaceDelimited("<arg>")
       parser map { o => (o._1._1, o._1._2, o._2) }
   }
@@ -154,7 +154,7 @@ object JolPlugin extends sbt.AutoPlugin {
 
   object autoImport {
     // !! Annoying compiler error configuration id must be capitalized
-    final val Jol = sbt.config("jol") extend sbt.Configurations.CompileInternal
+    final val Jol = sbt.config("jol").extend(sbt.Configurations.CompileInternal)
 
     lazy val vmDetails = inputKey[Unit]("Show vm details")
 
