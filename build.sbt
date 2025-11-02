@@ -4,6 +4,7 @@ lazy val root = (project in file("."))
   .enablePlugins(SbtPlugin)
   .settings(
     scriptedLaunchOpts += s"-Dproject.version=${version.value}",
+    scriptedBufferLog := false,
     organization := "com.github.xuwei-k",
     homepage := Some(url("https://github.com/xuwei-k/sbt-jol")),
     pomExtra := (
