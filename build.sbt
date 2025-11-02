@@ -2,6 +2,8 @@ import ReleaseTransformations.*
 
 val jol = "org.openjdk.jol" % "jol-core" % "0.17"
 
+publish / skip := true
+
 lazy val `sbt-jol-plugin` = (projectMatrix in file("sbt-jol"))
   .enablePlugins(SbtPlugin)
   .defaultAxes(VirtualAxis.jvm)
@@ -48,7 +50,6 @@ lazy val `sbt-jol-plugin` = (projectMatrix in file("sbt-jol"))
       "-encoding",
       "UTF-8"
     ),
-    releaseCrossBuild := true,
     releaseProcess := Seq[ReleaseStep](
       checkSnapshotDependencies,
       inquireVersions,
