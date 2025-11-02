@@ -1,3 +1,5 @@
+val jol = "org.openjdk.jol" % "jol-core" % "0.17"
+
 lazy val root = (project in file("."))
   .enablePlugins(SbtPlugin)
   .settings(
@@ -23,9 +25,7 @@ lazy val root = (project in file("."))
         throw new RuntimeException("Cancelling publish, please use JDK 1.8")
       publishConfiguration.value
     },
-    libraryDependencies += Dependencies.jol,
-    libraryDependencies += Dependencies.jolCli,
-    libraryDependencies += Dependencies.scriptedPlugin,
+    libraryDependencies += jol,
     name := "sbt-jol",
     scalacOptions ++= List(
       "-unchecked",
@@ -41,7 +41,7 @@ lazy val root = (project in file("."))
           "package sbtjol",
           "",
           "private[sbtjol] object SbtJolBuildInfo {",
-          s"""  def jolVersion: String = "${Dependencies.jol.revision}"""",
+          s"""  def jolVersion: String = "${jol.revision}"""",
           "}",
           "",
         ).mkString("\n")
