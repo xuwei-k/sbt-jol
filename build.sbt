@@ -1,3 +1,5 @@
+import ReleaseTransformations.*
+
 val jol = "org.openjdk.jol" % "jol-core" % "0.17"
 
 lazy val root = (project in file("."))
@@ -33,6 +35,19 @@ lazy val root = (project in file("."))
       "-deprecation",
       "-encoding",
       "UTF-8"
+    ),
+    releaseProcess := Seq[ReleaseStep](
+      checkSnapshotDependencies,
+      inquireVersions,
+      runClean,
+      setReleaseVersion,
+      commitReleaseVersion,
+      tagRelease,
+      releaseStepCommandAndRemaining("publishSigned"),
+      releaseStepCommandAndRemaining("sonaRelease"),
+      setNextVersion,
+      commitNextVersion,
+      pushChanges
     ),
     Compile / sourceGenerators += task {
       val f = (Compile / sourceManaged).value / "SbtJolBuildInfo.scala"
