@@ -33,6 +33,21 @@ lazy val root = (project in file("."))
       "-encoding",
       "UTF-8"
     ),
+    Compile / sourceGenerators += task {
+      val f = (Compile / sourceManaged).value / "SbtJolBuildInfo.scala"
+      IO.write(
+        f,
+        Seq(
+          "package sbtjol",
+          "",
+          "private[sbtjol] object SbtJolBuildInfo {",
+          s"""  def jolVersion: String = "${Dependencies.jol.revision}"""",
+          "}",
+          "",
+        ).mkString("\n")
+      )
+      Seq(f)
+    },
     publishMavenStyle := false,
     licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
   )

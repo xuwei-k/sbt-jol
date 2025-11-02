@@ -25,7 +25,7 @@ object JolPlugin extends sbt.AutoPlugin {
 
   override def projectSettings: Seq[Def.Setting[?]] = Seq(
     Jol / run := runJolTask(Compile / fullClasspath).dependsOn(Compile / compile).evaluated,
-    Jol / version := "0.5",
+    Jol / version := SbtJolBuildInfo.jolVersion,
     Jol / vmDetails := runVmDetailsTask().evaluated,
     Jol / estimates := runJolTask("estimates", Compile / fullClasspath).dependsOn(Compile / compile).evaluated,
     Jol / externals := runJolTask("externals", Compile / fullClasspath).dependsOn(Compile / compile).evaluated,
