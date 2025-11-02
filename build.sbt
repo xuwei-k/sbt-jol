@@ -4,6 +4,20 @@ val jol = "org.openjdk.jol" % "jol-core" % "0.17"
 
 publish / skip := true
 
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  releaseStepCommandAndRemaining("publishSigned"),
+  releaseStepCommandAndRemaining("sonaRelease"),
+  setNextVersion,
+  commitNextVersion,
+  pushChanges
+)
+
 lazy val `sbt-jol-plugin` = (projectMatrix in file("sbt-jol"))
   .enablePlugins(SbtPlugin)
   .defaultAxes(VirtualAxis.jvm)
@@ -49,19 +63,6 @@ lazy val `sbt-jol-plugin` = (projectMatrix in file("sbt-jol"))
       "-deprecation",
       "-encoding",
       "UTF-8"
-    ),
-    releaseProcess := Seq[ReleaseStep](
-      checkSnapshotDependencies,
-      inquireVersions,
-      runClean,
-      setReleaseVersion,
-      commitReleaseVersion,
-      tagRelease,
-      releaseStepCommandAndRemaining("publishSigned"),
-      releaseStepCommandAndRemaining("sonaRelease"),
-      setNextVersion,
-      commitNextVersion,
-      pushChanges
     ),
     Compile / sourceGenerators += task {
       val f = (Compile / sourceManaged).value / "SbtJolBuildInfo.scala"
