@@ -42,7 +42,4 @@ lazy val root = (project in file("."))
       ),
     publishMavenStyle := false,
     licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
-    bintrayRepository := "sbt-plugins",
-    bintrayOrganization in bintray := None,
-    bintrayPackageLabels := Seq("sbt-multi-release-jar")
    )
