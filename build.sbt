@@ -3,6 +3,20 @@ lazy val root = (project in file("."))
   .settings(
     scriptedLaunchOpts += s"-Dproject.version=${version.value}",
     organization := "com.github.xuwei-k",
+    homepage := Some(url("https://github.com/xuwei-k/sbt-jol")),
+    pomExtra := (
+      <developers>
+        <developer>
+          <id>xuwei-k</id>
+          <name>Kenji Yoshida</name>
+          <url>https://github.com/xuwei-k</url>
+        </developer>
+      </developers>
+      <scm>
+        <url>git@github.com:xuwei-k/sbt-jol.git</url>
+        <connection>scm:git:git@github.com:xuwei-k/sbt-jol.git</connection>
+      </scm>
+    ),
     publishConfiguration := {
       val javaVersion = System.getProperty("java.specification.version")
       if (javaVersion != "1.8")
