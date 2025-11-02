@@ -32,7 +32,6 @@ lazy val root = (project in file("."))
   .settings(
     name := "sbt-jol",
     sbtPlugin := true,
-    scalaVersion := "2.12.10",
     scalacOptions ++= List(
       "-unchecked",
       "-deprecation",
