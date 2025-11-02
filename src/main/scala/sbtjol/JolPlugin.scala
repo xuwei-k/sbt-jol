@@ -1,15 +1,15 @@
 package sbtjol
 
+import lmcoursier.internal.shaded.coursier
 import org.openjdk.jol.vm.VM
+import sbt.*
+import sbt.CacheImplicits.*
 import sbt.Def.Initialize
 import sbt.Keys.*
-import sbt.*
 import sbt.complete.DefaultParsers
 import sbt.complete.Parser
 import xsbt.api.Discovery
 import xsbti.compile.CompileAnalysis
-import sbt.CacheImplicits.*
-import lmcoursier.internal.shaded.coursier
 
 object JolPlugin extends sbt.AutoPlugin {
 
