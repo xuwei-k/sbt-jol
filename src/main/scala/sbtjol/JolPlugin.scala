@@ -46,19 +46,28 @@ object JolPlugin extends sbt.AutoPlugin {
     val parser = loadForParser(Jol / discoveredClasses)((s, names) => runJolModesParser(s, modes, names getOrElse Nil))
     Def.inputTask {
       val (mode, className, args) = parser.parsed
-      runJol(streams.value.log, (Jol / version).value, classpath.value, mode :: className :: args.toList)
+      runJol(
+        streams.value.log,
+        (Jol / version).value,
+        JolPluginCompat.classpathToFiles(classpath.value),
+        mode :: className :: args.toList
+      )
     }
   }
   def runJolTask(mode: String, classpath: Initialize[Task[Classpath]]): Initialize[InputTask[Unit]] = {
     val parser = loadForParser(Jol / discoveredClasses)((s, names) => runJolParser(s, names getOrElse Nil))
     Def.inputTask {
       val (className, args) = parser.parsed
-      runJol(streams.value.log, (Jol / version).value, classpath.value, mode :: className :: args.toList)
+      runJol(
+        streams.value.log,
+        (Jol / version).value,
+        JolPluginCompat.classpathToFiles(classpath.value),
+        mode :: className :: args.toList
+      )
     }
   }
 
-  def runJol(log: Logger, jolVersion: String, classpath: Classpath, args: Seq[String]): Unit = {
-    val cpFiles = classpath.map(_.data)
+  def runJol(log: Logger, jolVersion: String, classpath: Seq[File], args: Seq[String]): Unit = {
 
     // TODO not needed, but at least confirms HERE we're able to see the class, sadly if we call JOL classes they won't...
     //      val si = (scalaInstance in console).value
@@ -68,11 +77,11 @@ object JolPlugin extends sbt.AutoPlugin {
 
     val jolDeps = getArtifact("org.openjdk.jol", "jol-cli", jolVersion)
 
-    val allArg = s"${args.mkString(" ")} ${cpOption(cpFiles.toList)}"
+    val allArg = s"${args.mkString(" ")} ${cpOption(classpath)}"
     log.debug(s"jol: $allArg")
 
     import scala.sys.process.*
-    val javaClasspath = jolDeps.mkString(":") + ":" + cpFiles.toList.mkString(":")
+    val javaClasspath = jolDeps.mkString(":") + ":" + classpath.mkString(":")
     val output = s"java -cp $javaClasspath org.openjdk.jol.Main $allArg".!!(new ProcessLogger {
       override def buffer[T](f: => T): T = f
       override def out(s: => String): Unit = log.info(s)
