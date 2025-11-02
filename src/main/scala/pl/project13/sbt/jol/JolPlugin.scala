@@ -21,41 +21,41 @@ object JolPlugin extends sbt.AutoPlugin {
   override def trigger = allRequirements
 
   override def projectSettings: Seq[Def.Setting[_]] = Seq(
-    run in Jol := runJolTask(fullClasspath in Compile).dependsOn(compile in Compile).evaluated,
+    Jol / run := runJolTask(Compile / fullClasspath).dependsOn(Compile / compile).evaluated,
 
-    version in Jol := "0.5",
+    Jol / version := "0.5",
 
-    vmDetails in Jol := runVmDetailsTask().evaluated,
-    estimates in Jol := runJolTask("estimates", fullClasspath in Compile).dependsOn(compile in Compile).evaluated,
-    externals in Jol := runJolTask("externals", fullClasspath in Compile).dependsOn(compile in Compile).evaluated,
-    footprint in Jol := runJolTask("footprint", fullClasspath in Compile).dependsOn(compile in Compile).evaluated,
-    heapdump in Jol  := runJolTask("heapdump", fullClasspath in Compile).dependsOn(compile in Compile).evaluated,
-    idealpack in Jol := runJolTask("idealpack", fullClasspath in Compile).dependsOn(compile in Compile).evaluated,
-    internals in Jol := runJolTask("internals", fullClasspath in Compile).dependsOn(compile in Compile).evaluated,
-    // TODO: stringCompress in jol <<= runJolTask("string-compress", fullClasspath in Compile).dependsOn(compile in Compile),
+    Jol / vmDetails := runVmDetailsTask().evaluated,
+    Jol / estimates := runJolTask("estimates", Compile / fullClasspath).dependsOn(Compile / compile).evaluated,
+    Jol / externals := runJolTask("externals", Compile / fullClasspath).dependsOn(Compile / compile).evaluated,
+    Jol / footprint := runJolTask("footprint", Compile / fullClasspath).dependsOn(Compile / compile).evaluated,
+    Jol / heapdump := runJolTask("heapdump", Compile / fullClasspath).dependsOn(Compile / compile).evaluated,
+    Jol / idealpack := runJolTask("idealpack", Compile / fullClasspath).dependsOn(Compile / compile).evaluated,
+    Jol / internals := runJolTask("internals", Compile / fullClasspath).dependsOn(Compile / compile).evaluated,
+    // TODO: stringCompress in jol <<= runJolTask("string-compress", Compile / fullClasspath).dependsOn(Compile / compile),
 
-    discoveredClasses in Jol := Seq.empty,
+    Jol / discoveredClasses := Seq.empty,
     // TODO tab auto-completion break if use `:=` and `.value`
     // https://github.com/sbt/sbt/issues/1444
     //`<<=` operator is removed. Use `key
-    discoveredClasses in Jol := (compile in Compile)
+    Jol / discoveredClasses := (Compile / compile)
         .map(discoverAllClasses)
-        .storeAs(discoveredClasses in Jol)
-        .triggeredBy(compile in Compile).value
+        .storeAs(Jol / discoveredClasses)
+        .triggeredBy(Compile / compile).value
     )
 
   def runJolTask(classpath: Initialize[Task[Classpath]]): Initialize[InputTask[Unit]] = {
-    val parser = loadForParser(discoveredClasses in Jol)((s, names) => runJolModesParser(s, modes, names getOrElse Nil))
+    val parser = loadForParser(Jol / discoveredClasses)((s, names) => runJolModesParser(s, modes, names getOrElse Nil))
     Def.inputTask {
       val (mode, className, args) = parser.parsed
-      runJol(streams.value.log, ivySbt.value, (version in Jol).value, classpath.value, mode :: className :: args.toList)
+      runJol(streams.value.log, ivySbt.value, (Jol / version).value, classpath.value, mode :: className :: args.toList)
     }
   }
   def runJolTask(mode: String, classpath: Initialize[Task[Classpath]]): Initialize[InputTask[Unit]] = {
-    val parser = loadForParser(discoveredClasses in Jol)((s, names) => runJolParser(s, names getOrElse Nil))
+    val parser = loadForParser(Jol / discoveredClasses)((s, names) => runJolParser(s, names getOrElse Nil))
     Def.inputTask {
       val (className, args) = parser.parsed
-      runJol(streams.value.log, ivySbt.value, (version in Jol).value, classpath.value, mode :: className :: args.toList)
+      runJol(streams.value.log, ivySbt.value, (Jol / version).value, classpath.value, mode :: className :: args.toList)
     }
   }
 
