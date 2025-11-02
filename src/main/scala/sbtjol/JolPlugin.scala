@@ -42,7 +42,7 @@ object JolPlugin extends sbt.AutoPlugin {
       .value
   )
 
-  def runJolTask(classpath: Initialize[Task[Classpath]]): Initialize[InputTask[Unit]] = {
+  private def runJolTask(classpath: Initialize[Task[Classpath]]): Initialize[InputTask[Unit]] = {
     val parser = loadForParser(Jol / discoveredClasses)((s, names) => runJolModesParser(s, modes, names getOrElse Nil))
     Def.inputTask {
       val (mode, className, args) = parser.parsed
@@ -55,7 +55,7 @@ object JolPlugin extends sbt.AutoPlugin {
       )
     }
   }
-  def runJolTask(mode: String, classpath: Initialize[Task[Classpath]]): Initialize[InputTask[Unit]] = {
+  private def runJolTask(mode: String, classpath: Initialize[Task[Classpath]]): Initialize[InputTask[Unit]] = {
     val parser = loadForParser(Jol / discoveredClasses)((s, names) => runJolParser(s, names getOrElse Nil))
     Def.inputTask {
       val (className, args) = parser.parsed
@@ -69,7 +69,13 @@ object JolPlugin extends sbt.AutoPlugin {
     }
   }
 
-  def runJol(log: Logger, jolVersion: String, classpath: Seq[File], args: Seq[String], forkOps: ForkOptions): Unit = {
+  private def runJol(
+    log: Logger,
+    jolVersion: String,
+    classpath: Seq[File],
+    args: Seq[String],
+    forkOps: ForkOptions
+  ): Unit = {
 
     // TODO not needed, but at least confirms HERE we're able to see the class, sadly if we call JOL classes they won't...
     //      val si = (scalaInstance in console).value
@@ -120,7 +126,7 @@ object JolPlugin extends sbt.AutoPlugin {
   private def cpOption(cpFiles: Seq[File]): Seq[String] =
     Seq("-cp", cpFiles.mkString(":"))
 
-  def runVmDetailsTask(): Initialize[InputTask[Unit]] = {
+  private def runVmDetailsTask(): Initialize[InputTask[Unit]] = {
     Def.inputTask {
       streams.value.log.info(VM.current().details())
     }
@@ -142,7 +148,7 @@ object JolPlugin extends sbt.AutoPlugin {
       parser map { o => (o._1._1, o._1._2, o._2) }
   }
 
-  val modes = List(
+  private val modes = List(
     "estimates",
     "externals",
     "footprint",
