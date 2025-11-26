@@ -30,7 +30,7 @@ lazy val `sbt-jol-plugin` = (projectMatrix in file("sbt-jol"))
         case "2.12" =>
           sbtVersion.value
         case _ =>
-          "2.0.0-RC6"
+          "2.0.0-RC7"
       }
     },
     scriptedLaunchOpts += s"-Dproject.version=${version.value}",
