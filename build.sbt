@@ -22,7 +22,7 @@ lazy val `sbt-jol-plugin` = (projectMatrix in file("sbt-jol"))
   .enablePlugins(SbtPlugin)
   .defaultAxes(VirtualAxis.jvm)
   .jvmPlatform(
-    scalaVersions = Seq("2.12.20", "3.7.4")
+    scalaVersions = Seq("2.12.21", "3.7.4")
   )
   .settings(
     pluginCrossBuild / sbtVersion := {
