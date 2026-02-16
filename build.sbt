@@ -22,7 +22,7 @@ lazy val `sbt-jol-plugin` = (projectMatrix in file("sbt-jol"))
   .enablePlugins(SbtPlugin)
   .defaultAxes(VirtualAxis.jvm)
   .jvmPlatform(
-    scalaVersions = Seq("2.12.21", "3.7.4")
+    scalaVersions = Seq("2.12.21", "3.8.2-RC3")
   )
   .settings(
     pluginCrossBuild / sbtVersion := {
@@ -30,7 +30,7 @@ lazy val `sbt-jol-plugin` = (projectMatrix in file("sbt-jol"))
         case "2.12" =>
           sbtVersion.value
         case _ =>
-          "2.0.0-RC8"
+          "2.0.0-RC9"
       }
     },
     scriptedLaunchOpts += s"-Dproject.version=${version.value}",
