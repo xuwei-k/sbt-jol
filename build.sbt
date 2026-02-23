@@ -2,20 +2,21 @@ import ReleaseTransformations.*
 
 val jol = "org.openjdk.jol" % "jol-core" % "0.17"
 
-publish / skip := true
-
-releaseProcess := Seq[ReleaseStep](
-  checkSnapshotDependencies,
-  inquireVersions,
-  runClean,
-  setReleaseVersion,
-  commitReleaseVersion,
-  tagRelease,
-  releaseStepCommandAndRemaining("publishSigned"),
-  releaseStepCommandAndRemaining("sonaRelease"),
-  setNextVersion,
-  commitNextVersion,
-  pushChanges
+val root = rootProject.autoAggregate.settings(
+  publish / skip := true,
+  releaseProcess := Seq[ReleaseStep](
+    checkSnapshotDependencies,
+    inquireVersions,
+    runClean,
+    setReleaseVersion,
+    commitReleaseVersion,
+    tagRelease,
+    releaseStepCommandAndRemaining("publishSigned"),
+    releaseStepCommandAndRemaining("sonaRelease"),
+    setNextVersion,
+    commitNextVersion,
+    pushChanges
+  )
 )
 
 lazy val `sbt-jol-plugin` = (projectMatrix in file("sbt-jol"))
@@ -28,9 +29,9 @@ lazy val `sbt-jol-plugin` = (projectMatrix in file("sbt-jol"))
     pluginCrossBuild / sbtVersion := {
       scalaBinaryVersion.value match {
         case "2.12" =>
-          sbtVersion.value
+          "1.12.4"
         case _ =>
-          "2.0.0-RC9"
+          sbtVersion.value
       }
     },
     scriptedLaunchOpts += s"-Dproject.version=${version.value}",
