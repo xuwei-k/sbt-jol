@@ -1,37 +1,40 @@
 import ReleaseTransformations.*
 
 def sbt2 = "2.0.0-RC12"
+def sbt1 = "1.12.10"
 val Scala3 = scala_version_from_sbt_version.ScalaVersionFromSbtVersion(sbt2)
+val Scala212 = scala_version_from_sbt_version.ScalaVersionFromSbtVersion(sbt1)
 
 val jol = "org.openjdk.jol" % "jol-core" % "0.17"
 
-publish / skip := true
-
-releaseProcess := Seq[ReleaseStep](
-  checkSnapshotDependencies,
-  inquireVersions,
-  runClean,
-  setReleaseVersion,
-  commitReleaseVersion,
-  tagRelease,
-  releaseStepCommandAndRemaining("publishSigned"),
-  releaseStepCommandAndRemaining("sonaRelease"),
-  setNextVersion,
-  commitNextVersion,
-  pushChanges
+val root = rootProject.autoAggregate.settings(
+  publish / skip := true,
+  releaseProcess := Seq[ReleaseStep](
+    checkSnapshotDependencies,
+    inquireVersions,
+    runClean,
+    setReleaseVersion,
+    commitReleaseVersion,
+    tagRelease,
+    releaseStepCommandAndRemaining("publishSigned"),
+    releaseStepCommandAndRemaining("sonaRelease"),
+    setNextVersion,
+    commitNextVersion,
+    pushChanges
+  )
 )
 
 lazy val `sbt-jol-plugin` = (projectMatrix in file("sbt-jol"))
   .enablePlugins(SbtPlugin)
   .defaultAxes(VirtualAxis.jvm)
   .jvmPlatform(
-    scalaVersions = Seq("2.12.21", Scala3)
+    scalaVersions = Seq(Scala212, Scala3)
   )
   .settings(
     pluginCrossBuild / sbtVersion := {
       scalaBinaryVersion.value match {
         case "2.12" =>
-          sbtVersion.value
+          sbt1
         case _ =>
           sbt2
       }
