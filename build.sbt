@@ -1,5 +1,8 @@
 import ReleaseTransformations.*
 
+def sbt2 = "2.0.0-RC11"
+val Scala3 = scala_version_from_sbt_version.ScalaVersionFromSbtVersion(sbt2)
+
 val jol = "org.openjdk.jol" % "jol-core" % "0.17"
 
 publish / skip := true
@@ -22,7 +25,7 @@ lazy val `sbt-jol-plugin` = (projectMatrix in file("sbt-jol"))
   .enablePlugins(SbtPlugin)
   .defaultAxes(VirtualAxis.jvm)
   .jvmPlatform(
-    scalaVersions = Seq("2.12.21", "3.8.2")
+    scalaVersions = Seq("2.12.21", Scala3)
   )
   .settings(
     pluginCrossBuild / sbtVersion := {
@@ -30,7 +33,7 @@ lazy val `sbt-jol-plugin` = (projectMatrix in file("sbt-jol"))
         case "2.12" =>
           sbtVersion.value
         case _ =>
-          "2.0.0-RC11"
+          sbt2
       }
     },
     scriptedLaunchOpts += s"-Dproject.version=${version.value}",
