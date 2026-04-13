@@ -1,6 +1,6 @@
 import ReleaseTransformations.*
 
-def sbt2 = "2.0.0-RC11"
+def sbt2 = "2.0.0-RC12"
 val Scala3 = scala_version_from_sbt_version.ScalaVersionFromSbtVersion(sbt2)
 
 val jol = "org.openjdk.jol" % "jol-core" % "0.17"
