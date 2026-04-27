@@ -7,16 +7,16 @@ Trivial way to inspect OpenJDK's [*Java Object Layout*](https://openjdk.org/proj
 
 Get the latest via:
 
- ```scala
- // project/plugins.sbt
- addSbtPlugin("com.github.xuwei-k" % "sbt-jol" % pluginVersionHere)
- ```
- 
- Which allows you to (note auto-completion works nicely):
- 
- ```
- > Jol/internals example.Entry
- 
+```scala
+// project/plugins.sbt
+addSbtPlugin("com.github.xuwei-k" % "sbt-jol" % pluginVersionHere)
+```
+
+Which allows you to (note auto-completion works nicely):
+
+```
+> Jol/internals example.Entry
+
 [info] # Running 64-bit HotSpot VM.
 [info] # Using compressed oop with 3-bit shift.
 [info] # Using compressed klass with 3-bit shift.
@@ -37,7 +37,7 @@ Get the latest via:
 [info]      20     4        (loss due to the next object alignment)
 [info] Instance size: 24 bytes
 [info] Space losses: 0 bytes internal + 4 bytes external = 4 bytes total
- ```
+```
  
 
 Contribute!
