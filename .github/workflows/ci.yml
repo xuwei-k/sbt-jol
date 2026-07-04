@@ -1,6 +1,8 @@
 on:
   pull_request:
   push:
+    branches:
+      - master
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -18,4 +20,9 @@ jobs:
         java-version: ${{matrix.java}}
         distribution: temurin
     - uses: sbt/setup-sbt@v1
-    - run: sbt --server scalafmtSbtCheck scalafmtCheckAll test scripted
+    - run: sbt
+           -v
+           --server
+           "all scalafmtSbtCheck scalafmtCheckAll"
+           test
+           scripted
