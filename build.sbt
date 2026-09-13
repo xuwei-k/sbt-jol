@@ -46,7 +46,7 @@ lazy val `sbt-jol-plugin` = (projectMatrix in file("sbt-jol"))
     scriptedLaunchOpts += s"-Dproject.version=${version.value}",
     scriptedBufferLog := false,
     organization := "com.github.xuwei-k",
-    homepage := Some(url("https://github.com/xuwei-k/sbt-jol")),
+    homepage := Some(uri("https://github.com/xuwei-k/sbt-jol")),
     pomExtra := (
       <developers>
         <developer>
@@ -90,5 +90,5 @@ lazy val `sbt-jol-plugin` = (projectMatrix in file("sbt-jol"))
       Seq(f)
     },
     publishTo := (if (isSnapshot.value) None else localStaging.value),
-    licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
+    licenses += ("Apache-2.0", uri("http://www.apache.org/licenses/LICENSE-2.0.html")),
   )
