@@ -1,13 +1,9 @@
 import ReleaseTransformations.*
 
-val sbt2 = {
-  val p = new java.util.Properties
-  p.load(new java.io.FileInputStream("project/build.properties"))
-  p.getProperty("sbt.version").trim
-}
+val sbt2 = "2.1.0"
 def sbt1 = "1.13.1"
-val Scala3 = scala_version_from_sbt_version.ScalaVersionFromSbtVersion(sbt2)
-val Scala212 = scala_version_from_sbt_version.ScalaVersionFromSbtVersion(sbt1)
+val Scala3 = "3.9.0"
+val Scala212 = "2.12.21"
 
 val jol = "org.openjdk.jol" % "jol-core" % "0.17"
 
@@ -60,13 +56,13 @@ lazy val `sbt-jol-plugin` = (projectMatrix in file("sbt-jol"))
         <connection>scm:git:git@github.com:xuwei-k/sbt-jol.git</connection>
       </scm>
     ),
-    publishConfiguration := {
-      val javaVersion = System.getProperty("java.specification.version")
-      if (javaVersion != "1.8")
-        throw new RuntimeException("Cancelling publish, please use JDK 1.8")
-      publishConfiguration.value
+    scalacOptions ++= {
+      if (scalaBinaryVersion.value == "2.12") Seq("-Xsource:3", "-release:8")
+      else Seq("-release:17")
     },
     libraryDependencies += jol,
+    libraryDependencies += "io.get-coursier" % "interface" % "1.0.30",
+    libraryDependencies += "org.scala-lang.modules" %% "scala-collection-compat" % "2.14.0",
     name := "sbt-jol",
     scalacOptions ++= List(
       "-unchecked",

@@ -1,6 +1,7 @@
 package sbtjol
 
-import lmcoursier.internal.shaded.coursier
+import coursierapi.Dependency
+import coursierapi.Fetch
 import org.openjdk.jol.vm.VM
 import sbt.*
 import sbt.CacheImplicits.*
@@ -8,6 +9,7 @@ import sbt.Def.Initialize
 import sbt.Keys.*
 import sbt.complete.DefaultParsers
 import sbt.complete.Parser
+import scala.jdk.CollectionConverters.*
 import xsbt.api.Discovery
 import xsbti.compile.CompileAnalysis
 
@@ -109,18 +111,8 @@ object JolPlugin extends sbt.AutoPlugin {
   }
 
   private def getArtifact(groupId: String, artifactId: String, revision: String): Seq[File] = {
-    val dependency = coursier.Dependency(
-      coursier.Module(
-        coursier.Organization(
-          groupId
-        ),
-        coursier.ModuleName(
-          artifactId
-        ),
-      ),
-      revision
-    )
-    coursier.Fetch().addDependencies(dependency).runResult().files
+    val dependency = Dependency.of(groupId, artifactId, revision)
+    Fetch.create().addDependencies(dependency).fetch().asScala.toVector
   }
 
   private def cpOption(cpFiles: Seq[File]): Seq[String] =
