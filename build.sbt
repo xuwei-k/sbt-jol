@@ -64,6 +64,16 @@ lazy val `sbt-jol-plugin` = (projectMatrix in file("sbt-jol"))
     },
     libraryDependencies += jol,
     name := "sbt-jol",
+    scalacOptions ++= {
+      scalaBinaryVersion.value match {
+        case "2.12" =>
+          Seq(
+            "-release:8",
+          )
+        case "3" =>
+          Nil
+      }
+    },
     scalacOptions ++= List(
       "-unchecked",
       "-deprecation",
