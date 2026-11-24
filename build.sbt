@@ -58,8 +58,8 @@ lazy val `sbt-jol-plugin` = (projectMatrix in file("sbt-jol"))
     ),
     publishConfiguration := {
       val javaVersion = System.getProperty("java.specification.version")
-      if (javaVersion != "1.8")
-        throw new RuntimeException("Cancelling publish, please use JDK 1.8")
+      if (javaVersion != "17")
+        throw new RuntimeException("Cancelling publish, please use JDK 17")
       publishConfiguration.value
     },
     libraryDependencies += jol,
