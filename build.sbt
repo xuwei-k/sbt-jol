@@ -1,10 +1,6 @@
 import ReleaseTransformations.*
 
-val sbt2 = {
-  val p = new java.util.Properties
-  p.load(new java.io.FileInputStream("project/build.properties"))
-  p.getProperty("sbt.version").trim
-}
+val sbt2 = "2.0.12"
 def sbt1 = "1.13.1"
 val Scala3 = scala_version_from_sbt_version.ScalaVersionFromSbtVersion(sbt2)
 val Scala212 = scala_version_from_sbt_version.ScalaVersionFromSbtVersion(sbt1)
